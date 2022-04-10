@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "99277970354",
+    "project_id": "remicare-db",
+    "storage_bucket": "remicare-db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99277970354:android:b9833678c1d52232bbe2ab",
+        "android_client_info": {
+          "package_name": "com.example.remicare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99277970354-jta16l3ubotve4lm3qr7m4sncv17rpdj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1fqCQRs_0ZIihHa5fvKgtend25646olw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99277970354-jta16l3ubotve4lm3qr7m4sncv17rpdj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
