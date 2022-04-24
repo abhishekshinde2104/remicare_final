@@ -1,7 +1,9 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, avoid_unnecessary_containers, sized_box_for_whitespace, unused_import, unused_field, prefer_final_fields, unnecessary_this, unused_element, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, avoid_unnecessary_containers, sized_box_for_whitespace, unused_import, unused_field, prefer_final_fields, unnecessary_this, unused_element, avoid_print, unused_local_variable, non_constant_identifier_names
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,16 +35,15 @@ class _PatientHomeState extends State<PatientHome> {
   final navigationKey = GlobalKey<CurvedNavigationBarState>() ;
   int _currentIndex=0;
 
-  final bottomitems = <Widget>[
-    Icon(Icons.home), 
-    ImageIcon(
-      AssetImage('assets/home_icons/doctor_2.png'),
-      size: 30,
-    ),
-    Icon(Icons.camera),
-    Icon(Icons.settings),
-    
-  ];
+  // final bottomitems = <Widget>[
+  //   Icon(Icons.home), 
+  //   ImageIcon(
+  //     AssetImage('assets/home_icons/doctor_2.png'),
+  //     size: 30,
+  //   ),
+  //   Icon(Icons.camera),
+  //   Icon(Icons.settings), 
+  // ];
 
   final List<Widget> _otherPages = [
     PatientHome(),
@@ -75,14 +76,6 @@ class _PatientHomeState extends State<PatientHome> {
         extendBody: true,
         appBar: AppBar(
           title: Text("Hello, Vishwajeet"),
-          actions: <Widget>[
-            // IconButton(
-            //   icon: Icon(Icons.settings),
-            //   onPressed: (){
-    
-            //   }, 
-            // )
-          ],
         ),
         drawer: _addDrawer(),
         body:Column(
@@ -90,6 +83,7 @@ class _PatientHomeState extends State<PatientHome> {
             _addTaskBar(),
             _addDateBar(),
             SizedBox(height: 10,),
+            _retrieve_reminders(),
             //_showTasks(),
           ],
         ),
@@ -156,9 +150,13 @@ class _PatientHomeState extends State<PatientHome> {
         Text("Today",style: headingStyle,),
         ],
       ),
-      MyButton(label: "+Reminder", onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context){
-        return RemindHomeScreen();
-      }))
+      MyButton(label: "+Reminder", 
+                onTap: ()=>Navigator.push(context, 
+                MaterialPageRoute(builder: (context){
+                return RemindHomeScreen();
+              }
+            )
+          )
       ),
 
     ],
@@ -277,7 +275,14 @@ class _PatientHomeState extends State<PatientHome> {
         title: const Text('Logout'),
         leading: Icon(Icons.logout),
         iconColor: Colors.blue,
-        onTap: () {       
+        onTap: () { 
+          FirebaseAuth.instance.signOut().then((value){
+            print("Signed Out");
+            Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DocAssLoginScreen()),
+          );
+          });      
         },
       ),     
       ],
@@ -291,10 +296,10 @@ class _PatientHomeState extends State<PatientHome> {
         return ListView.builder(
           //itemCount: _taskController,
           itemBuilder: (_,context){
-            print(5);
+          print(5);
             return GestureDetector(
-              onTap: (){
-
+              onTap: () async{
+                
               },
               child: Container(
                 width: 100,
@@ -310,7 +315,49 @@ class _PatientHomeState extends State<PatientHome> {
     );
   }
 
+ _retrieve_reminders(){
+  final Stream<DocumentSnapshot<Map<String, dynamic>>> _usersStream = FirebaseFirestore.instance.collection('users')
+  .doc('vgOtUJeHZ5WEoBLC2qzT')
+  .collection('reminders')
+  .doc('I4Z1y1m414FtCOAu1tNa')
+  .snapshots();
+  //Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
+  return StreamBuilder<QuerySnapshot>(
+      //stream: _usersStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading");
+        }
+        return ListView(
+          children: snapshot.data!.docs.map((DocumentSnapshot document) {
+          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+            return ListTile(
+              title: Text(data['med_name']),
+              subtitle: Text(data['med_power']),
+            );
+          }).toList(),
+        );
+      },
+    );
+    
+  // FirebaseFirestore.instance
+  //   .collection('users')
+  //   .doc('vgOtUJeHZ5WEoBLC2qzT')
+  //   .collection('reminders')
+  //   .doc('I4Z1y1m414FtCOAu1tNa')
+  //   .get()
+  //   .then((DocumentSnapshot documentSnapshot) {
+  //     if (documentSnapshot.exists) {
+  //       print('Document data: ${documentSnapshot.data()}');
+  //     } else {
+  //       print('Document does not exist on the database');
+  //     }
+  //   });
 
+  }
 
 }
 

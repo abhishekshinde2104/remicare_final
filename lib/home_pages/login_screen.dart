@@ -1,9 +1,13 @@
-// ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors, duplicate_ignore, sized_box_for_whitespace, avoid_print, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors, duplicate_ignore, sized_box_for_whitespace, avoid_print, non_constant_identifier_names, unused_local_variable, unused_import
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:remicare/home_pages/create_account.dart';
 import 'package:remicare/doc_ass/doc_ass_methods.dart';
 import 'package:remicare/home_pages/doc_ass_home.dart';
+import 'package:remicare/home_pages/patient_home.dart';
 
 
 class DocAssLoginScreen extends StatefulWidget {
@@ -16,7 +20,10 @@ class DocAssLoginScreen extends StatefulWidget {
 class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  String? uid;
   bool isLoading = false;
+
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -34,14 +41,14 @@ class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
               child: Column(
                 children: [
                   SizedBox(
-                    height: size.height / 20,
+                    height: size.height / 7,
                   ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    width: size.width / 0.5,
-                    child: IconButton(
-                        icon: Icon(Icons.arrow_back_ios), onPressed: () {}),
-                  ),
+                  // Container(
+                  //   alignment: Alignment.centerLeft,
+                  //   width: size.width / 0.5,
+                  //   child: IconButton(
+                  //       icon: Icon(Icons.arrow_back_ios), onPressed: () {}),
+                  // ),
                   SizedBox(
                     height: size.height / 50,
                   ),
@@ -91,12 +98,6 @@ class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
                     height: size.height / 40,
                   ),
                   GestureDetector(
-                    onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => DocAssCreateAccount()),
-                      );
-                      },
                     child: Text(
                       "Create Account",
                       style: TextStyle(
@@ -105,6 +106,12 @@ class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DocAssCreateAccount()),
+                      );
+                      },
                   )
                 ],
               ),
@@ -114,28 +121,30 @@ class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
 
   Widget customButton(Size size) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
           setState(() {
             isLoading = true;
           });
-
-          logIn(_email.text, _password.text).then((user) {
-            if (user != null) {
-              print("Login Sucessfull");
-              setState(() {
-                isLoading = false;
-              });
+          FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: _email.text,
+            password: _password.text)
+            .then((value){
               Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => DocAssHomeScreen()));
-            } else {
-              print("Login Failed");
-              setState(() {
-                isLoading = false;
-              });
-            }
+                context,
+                MaterialPageRoute(builder: (context) => PatientHome()),
+              );
+            }).onError((error, stackTrace){
+            print("Error ${error.toString()}");
           });
-        } else {
+
+          final FirebaseAuth auth = FirebaseAuth.instance;
+          final User? user = auth.currentUser;
+          uid = user!.uid;
+          print("Login Successful");
+          print(uid);
+        } 
+        else {
           print("Please fill form correctly");
         }
       },
@@ -178,7 +187,7 @@ class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
   }
 
   Widget Pfield(
-      Size size, String hintText, IconData icon, TextEditingController cont) {
+    Size size, String hintText, IconData icon, TextEditingController cont) {
     return Container(
       height: size.height / 14,
       width: size.width / 1.1,

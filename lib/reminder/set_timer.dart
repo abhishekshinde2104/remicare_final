@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new
+// ignore_for_file: prefer_const_constructors, unnecessary_new, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_alarm_clock/flutter_alarm_clock.dart';
@@ -77,7 +77,7 @@ class _SetTimeState extends State<SetTime> {
                     TextButton(child:  Text(timer, style: TextStyle(color: Colors.black)), onPressed: (){
                       _selectTime();
                       timer = _time.hour.toString() + " : " + _time.minute.toString();
-                      print(timer);
+                      //print(timer);
                       setState(() {
                       });
                     },

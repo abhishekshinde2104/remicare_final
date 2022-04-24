@@ -1,7 +1,8 @@
 
 
-// ignore_for_file: unused_import, prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: unused_import, prefer_const_literals_to_create_immutables, prefer_const_constructors, must_call_super, avoid_unnecessary_containers, avoid_print, unused_element
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remicare/home_pages/patient_home.dart';
@@ -29,6 +30,20 @@ class _AddReminderState extends State<AddReminder> {
 
   TextEditingController medicineName = TextEditingController();
   TextEditingController medicineDosage = TextEditingController();
+
+
+  CollectionReference<Map<String, dynamic>> reminders = FirebaseFirestore.instance.collection('users').doc('YdPCXc49uJXrfZyp22gH').collection('reminder');
+  Future<void> addReminder() {
+    // Call the user's CollectionReference to add a new user
+    return reminders
+        .add({
+          'med_name': medicineName.text, // John Doe
+          'med_dose': medicineDosage.text, // Stokes and Sons
+          //'age': age // 42
+        })
+        .then((value) => print("Reminder Added"))
+        .catchError((error) => print("Failed to add reminder: $error"));
+  }
 
   @override
   void dispose(){
@@ -157,8 +172,12 @@ class _AddReminderState extends State<AddReminder> {
                 color: primaryColor,
               ),
               width: 100,
-              child: TextButton(child: Text("Next", style: const TextStyle(color: Colors.white),), onPressed: (){
-
+              child: TextButton(child: Text("Next", 
+                style: const TextStyle(color: Colors.white),),
+                onPressed: (){
+                
+                
+                addReminder();
                 appVar.currentMedicine.medicineName = medicineName.text;
                 appVar.currentMedicine.dosage = medicineDosage.text;
                 //Get.to(SetTime(), transition: Transition.leftToRightWithFade);
