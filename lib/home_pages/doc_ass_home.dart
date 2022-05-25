@@ -1,11 +1,13 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, sized_box_for_whitespace, avoid_print
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, sized_box_for_whitespace, avoid_print, unnecessary_string_interpolations
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:remicare/doc_ass/chat_room.dart';
-import 'package:remicare/doc_ass/doc_ass_methods.dart';
+//import 'package:remicare/doc_ass/doc_ass_methods.dart';
+import 'package:remicare/globals/globals.dart' as globals;
+import 'package:remicare/home_pages/logInOut.dart';
 
 class DocAssHomeScreen extends StatefulWidget {
   @override
@@ -138,9 +140,10 @@ class _DocAssHomeScreenState extends State<DocAssHomeScreen> with WidgetsBinding
                           String roomId = chatRoomId(
                               _auth.currentUser!.displayName!,
                               userMap!['name']);
-                          Navigator.of(context).push(
+                              print(roomId);
+                          Navigator.push(context,
                             MaterialPageRoute(
-                              builder: (_) => ChatRoom(
+                              builder: (context)=> ChatRoom(
                                 chatRoomId: roomId,
                                 userMap: userMap!,
                               ),
@@ -162,14 +165,6 @@ class _DocAssHomeScreenState extends State<DocAssHomeScreen> with WidgetsBinding
                     : Container(),
               ],
             ),
-      /*floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.group),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => GroupChatHomeScreen(),
-          ),
-        ),
-      ),*/
     );
   }
 }

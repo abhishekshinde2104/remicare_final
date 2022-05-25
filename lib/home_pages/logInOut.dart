@@ -1,9 +1,13 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:remicare/home_pages/login_screen.dart';
+import 'package:remicare/globals/globals.dart' as globals;
 
-Future<User?> createAccount(String name, String email, String password) async {
+Future<User?> createPatientAccount(String name, String email, String password) async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -13,6 +17,9 @@ Future<User?> createAccount(String name, String email, String password) async {
         email: email, password: password);
 
     print("Account created Succesfull");
+    globals.currentUUID = _auth.currentUser!.uid;
+    globals.currentEmail = email;
+    globals.currentName = name;
 
     userCrendetial.user!.updateDisplayName(name);
 
@@ -38,6 +45,9 @@ Future<User?> logIn(String email, String password) async {
     UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
 
+    globals.currentUUID = _auth.currentUser!.uid;
+    globals.currentEmail = email;
+  
     print("Login Sucessfull");
     _firestore
         .collection('users')

@@ -1,9 +1,12 @@
 // ignore: file_names
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:remicare/home_pages/store_home.dart';
 import 'package:remicare/storage/firebase_api.dart';
 import 'package:remicare/storage/firebase_file.dart';
 import 'package:remicare/storage/image_page.dart';
-
+import 'package:remicare/globals/globals.dart' as globals;
 
 
 class FileApp extends StatelessWidget {
@@ -34,7 +37,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
-    futureFiles = FirebaseApi.listAll('files/');
+    futureFiles = FirebaseApi.listAll('/${globals.currentUUID}/');
   }
 
   @override
@@ -58,6 +61,17 @@ class _MainPageState extends State<MainPage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                    alignment: Alignment.centerLeft,
+                    width: MediaQuery.of(context).size.width / 0.5,
+                    child: IconButton(
+                        icon: Icon(Icons.arrow_back_ios), onPressed: () {
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => StoreHomePage(title: 'Storage Page')),
+                      );
+                        }),
+                  ),
                       buildHeader(files.length),
                       const SizedBox(height: 12),
                       Expanded(

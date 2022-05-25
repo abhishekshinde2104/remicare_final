@@ -4,10 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:remicare/globals/globals.dart';
 import 'package:remicare/home_pages/create_account.dart';
-import 'package:remicare/doc_ass/doc_ass_methods.dart';
+//import 'package:remicare/doc_ass/doc_ass_methods.dart';
 import 'package:remicare/home_pages/doc_ass_home.dart';
+import 'package:remicare/home_pages/logInOut.dart';
 import 'package:remicare/home_pages/patient_home.dart';
+import 'package:remicare/globals/globals.dart' as globals;
 
 
 class DocAssLoginScreen extends StatefulWidget {
@@ -20,8 +23,15 @@ class DocAssLoginScreen extends StatefulWidget {
 class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
-  String? uid;
+  //String? uid;
   bool isLoading = false;
+
+  //   Future<String?> current_userid() async {
+  //   final FirebaseAuth auth = FirebaseAuth.instance;
+  //   final User? user = auth.currentUser;
+  //   uid = user!.uid;
+  //   return(uid.toString());
+  // }
 
 
   @override
@@ -121,33 +131,66 @@ class _DocAssLoginScreenState extends State<DocAssLoginScreen> {
 
   Widget customButton(Size size) {
     return GestureDetector(
-      onTap: () async {
+      onTap: () {
         if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
           setState(() {
             isLoading = true;
           });
-          FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: _email.text,
-            password: _password.text)
-            .then((value){
+
+          logIn(_email.text, _password.text).then((user) {
+            if (user != null) {
+              // globals.currentEmail = _email.text;
+              // globals.currentUUID = current_userid() as String;
+              //print(globals.currentUUID);
+              print("Login Sucessfull");
+              setState(() {
+                isLoading = false;
+              });
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => PatientHome()),
               );
-            }).onError((error, stackTrace){
-            print("Error ${error.toString()}");
+            } else {
+              print("Login Failed");
+              setState(() {
+                isLoading = false;
+              });
+            }
           });
-
-          final FirebaseAuth auth = FirebaseAuth.instance;
-          final User? user = auth.currentUser;
-          uid = user!.uid;
-          print("Login Successful");
-          print(uid);
-        } 
-        else {
+        } else {
           print("Please fill form correctly");
         }
       },
+
+
+      // onTap: () async {
+      //   if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
+      //     setState(() {
+      //       isLoading = true;
+      //     });
+      //     globals.currentEmail = _email.text;
+      //     //globals.currentName = FirebaseFirestore.instance.collection('users').doc(_email.text).get().then((DocumentSnapshot snapshot){snapshot.data(['name'])}) as String;
+      //     FirebaseAuth.instance.signInWithEmailAndPassword(
+      //       email: _email.text,
+      //       password: _password.text)
+      //       .then((value){
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(builder: (context) => PatientHome()),
+      //         );
+      //       }).onError((error, stackTrace){
+      //       print("Error ${error.toString()}");
+      //     });
+      //     final FirebaseAuth auth = FirebaseAuth.instance;
+      //     final User? user = auth.currentUser;
+      //     uid = user!.uid;
+      //     print("Login Successful");
+      //     print(uid);
+      //   } 
+      //   else {
+      //     print("Please fill form correctly");
+      //   }
+      // },
       child: Container(
           height: size.height / 14,
           width: size.width / 1.2,

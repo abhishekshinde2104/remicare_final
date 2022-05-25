@@ -24,6 +24,7 @@ if (flutterVersionName == null) {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+apply plugin: 'com.google.gms.google-services'
 
 
 android {
@@ -39,6 +40,7 @@ android {
         applicationId "com.example.remicare"
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
+        //multiDexEnable true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -56,5 +58,13 @@ flutter {
     source '../..'
 }
 
+dependencies {
+    def multidex_version = "2.0.1"
+    implementation "androidx.multidex:multidex:$multidex_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-messaging:20.1.7'
+    implementation 'com.android.support:multidex:1.0.3'
+}
 
-apply plugin: 'com.google.gms.google-services'
+// apply plugin: 'com.google.gms.google-services'

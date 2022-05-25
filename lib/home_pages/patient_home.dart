@@ -1,23 +1,31 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, avoid_unnecessary_containers, sized_box_for_whitespace, unused_import, unused_field, prefer_final_fields, unnecessary_this, unused_element, avoid_print, unused_local_variable, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, avoid_unnecessary_containers, sized_box_for_whitespace, unused_import, unused_field, prefer_final_fields, unnecessary_this, unused_element, avoid_print, unused_local_variable, non_constant_identifier_names, dead_code, prefer_is_empty, unnecessary_brace_in_string_interps, unnecessary_string_interpolations
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:remicare/doc_ass/authenticate.dart';
+
+//import 'package:remicare/doc_ass/authenticate.dart';
+//import 'package:remicare/home_pages/doc_ass_home.dart';
+//import 'package:remicare/home_pages/remind_home.dart';
 import 'package:remicare/doc_ass/temp_chat.dart';
-import 'package:remicare/home_pages/login_screen.dart';
 import 'package:remicare/home_pages/doc_ass_home.dart';
-import 'package:remicare/home_pages/remind_home.dart';
+import 'package:remicare/home_pages/login_screen.dart';
 import 'package:remicare/home_pages/store_home.dart';
+import 'package:remicare/main.dart';
 import 'package:remicare/page_styles/buttons.dart';
 import 'package:remicare/page_styles/theme.dart';
+import 'package:remicare/reminder/add_reminder.dart';
+import 'package:remicare/reminder/push_notification_reminder.dart';
+import 'package:remicare/reminder/reminder_history.dart';
 
-
+import 'package:remicare/globals/globals.dart' as globals;
 
 
 const primaryColor = Color(0xFF4e5ae8);
@@ -34,6 +42,69 @@ class PatientHome extends StatefulWidget {
 class _PatientHomeState extends State<PatientHome> {
   final navigationKey = GlobalKey<CurvedNavigationBarState>() ;
   int _currentIndex=0;
+
+  @override
+  void initState(){
+    super.initState();
+
+    NotificationApi.init();
+    listenNotifications();
+
+
+
+    // 1. This method call when app in terminated state and you get a notification
+    // when you click on notification app open from terminated state and you can get notification data in this method
+    // FirebaseMessaging.instance.getInitialMessage().then(
+    //   (message) {
+    //     print("FirebaseMessaging.instance.getInitialMessage");
+    //     if (message != null) {
+    //       print("New Notification");
+    //       // if (message.data['_id'] != null) {
+    //       //   Navigator.of(context).push(
+    //       //     MaterialPageRoute(
+    //       //       builder: (context) => DemoScreen(
+    //       //         id: message.data['_id'],
+    //       //       ),
+    //       //     ),
+    //       //   );
+    //       // }
+    //     }
+    //   },
+    // );
+    // // 2. This method only call when App in forground it mean app must be opened
+    // FirebaseMessaging.onMessage.listen(
+    //   (message) {
+    //     print("FirebaseMessaging.onMessage.listen");
+    //     if (message.notification != null) {
+    //       print(message.notification!.title);
+    //       print(message.notification!.body);
+    //       print("message.data11 ${message.data}");
+    //       LocalNotificationService.createanddisplaynotification(message);
+    //     }
+    //   },
+    // );
+    // // 3. This method only call when App in background and not terminated(not closed)
+    // FirebaseMessaging.onMessageOpenedApp.listen(
+    //   (message) {
+    //     print("FirebaseMessaging.onMessageOpenedApp.listen");
+    //     if (message.notification != null) {
+    //       print(message.notification!.title);
+    //       print(message.notification!.body);
+    //       print("message.data22 ${message.data['_id']}");
+    //     }
+    //   },
+    // );
+
+  }
+
+  void listenNotifications() => 
+    NotificationApi.onNotifications.stream.listen((onClickedNotification){});
+
+  // void onClickedNotification(String? payload){
+  //   Navigator.of(context).push(
+  //     MaterialPage(builder:(context)=>),
+  //   );
+
 
   // final bottomitems = <Widget>[
   //   Icon(Icons.home), 
@@ -75,7 +146,7 @@ class _PatientHomeState extends State<PatientHome> {
       child: Scaffold(
         extendBody: true,
         appBar: AppBar(
-          title: Text("Hello, Vishwajeet"),
+          title: Text("Hello, ${globals.currentName}"),
         ),
         drawer: _addDrawer(),
         body:Column(
@@ -83,8 +154,47 @@ class _PatientHomeState extends State<PatientHome> {
             _addTaskBar(),
             _addDateBar(),
             SizedBox(height: 10,),
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: GestureDetector(
+                onTap: () {
+                  print('clicked on notification button');
+                  NotificationApi.showScheduleNotification(
+                    id: 1,
+                    title: 'Take Crocin 10 mg',
+                    body: 'Please make sure to take meds on time',
+                    payload: 'Payload ',
+                    scheduleDate:   DateTime.now().add(Duration(seconds: 5)),
+                  );
+
+                  final snackBar = SnackBar(
+                  content: Text('Scheduled in : ###',style: TextStyle(
+                    fontSize: 24,
+                    backgroundColor: Colors.green,
+                  ),
+                  ),
+                );
+                ScaffoldMessenger.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(snackBar);
+                },
+                child: Container(
+                  height: 40,
+                  width: 200,
+                  color: Colors.green,
+                  child: Center(
+                    child: Text(
+                      "Show Notification",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                )),
+
+                
             _retrieve_reminders(),
             //_showTasks(),
+            
           ],
         ),
         
@@ -153,11 +263,18 @@ class _PatientHomeState extends State<PatientHome> {
       MyButton(label: "+Reminder", 
                 onTap: ()=>Navigator.push(context, 
                 MaterialPageRoute(builder: (context){
-                return RemindHomeScreen();
+                return AddReminder();
               }
             )
           )
       ),
+      MyButton(label: "History", onTap: () async{
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => ReminderHistory()),
+        // );
+        //await localNotifyManager.showNotification();
+      })
 
     ],
     ),
@@ -203,7 +320,7 @@ class _PatientHomeState extends State<PatientHome> {
               onTap: (){
                 Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => listbuild()),
+                MaterialPageRoute(builder: (context) => DocAssHomeScreen()),
                 );
               },
               child: ImageIcon(
@@ -254,8 +371,8 @@ class _PatientHomeState extends State<PatientHome> {
      child: ListView(
           children: <Widget>[
         UserAccountsDrawerHeader(
-          accountName: Text("Vishwajeet Sawant"), 
-          accountEmail:Text("vishi@gmail.com"),
+          accountName: Text("${globals.currentName}"), 
+          accountEmail:Text("${globals.currentEmail}"),
         ),
         ListTile(
         title: const Text('Home'),
@@ -316,47 +433,47 @@ class _PatientHomeState extends State<PatientHome> {
   }
 
  _retrieve_reminders(){
-  final Stream<DocumentSnapshot<Map<String, dynamic>>> _usersStream = FirebaseFirestore.instance.collection('users')
-  .doc('vgOtUJeHZ5WEoBLC2qzT')
-  .collection('reminders')
-  .doc('I4Z1y1m414FtCOAu1tNa')
-  .snapshots();
+  // final Stream<QuerySnapshot<Map<String, dynamic>>> _usersStream = FirebaseFirestore.instance.collection('users').snapshots();
+  // Stream documentReference = FirebaseFirestore.instance.collection('users')
+  // .doc('vgOtUJeHZ5WEoBLC2qzT')
+  // .collection('reminders')
+  // .doc('I4Z1y1m414FtCOAu1tNa')
+  // .snapshots() ;
   //Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
-  return StreamBuilder<QuerySnapshot>(
-      //stream: _usersStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text('Something went wrong');
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
-        }
-        return ListView(
-          children: snapshot.data!.docs.map((DocumentSnapshot document) {
-          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-            return ListTile(
-              title: Text(data['med_name']),
-              subtitle: Text(data['med_power']),
-            );
-          }).toList(),
-        );
-      },
-    );
-    
-  // FirebaseFirestore.instance
-  //   .collection('users')
-  //   .doc('vgOtUJeHZ5WEoBLC2qzT')
-  //   .collection('reminders')
-  //   .doc('I4Z1y1m414FtCOAu1tNa')
-  //   .get()
-  //   .then((DocumentSnapshot documentSnapshot) {
-  //     if (documentSnapshot.exists) {
-  //       print('Document data: ${documentSnapshot.data()}');
-  //     } else {
-  //       print('Document does not exist on the database');
-  //     }
-  //   });
+  var stream = FirebaseFirestore.instance.collection('users').doc('${globals.currentUUID}').collection('reminders').snapshots();
+  //print("${globals.currentEmail}");
+  return Expanded(
+    child: StreamBuilder<QuerySnapshot>(
+        stream: stream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot)
+        {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          return ListView(
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+            Map<String, dynamic> data = document.data()! as Map<String,dynamic>;
+            //print(data);
+              return ListTile(
+                title: Text(data['med_name']),
+                subtitle: Text(data['med_dose']),
+              );
+            }).toList(),
+          );
+          // CollectionReference remineders = FirebaseFirestore.instance!.collection('users').doc('${globals.currentUUID}').collection('reminders');
+          // DocumentSnapshot snapshot1 = remineders.doc('28-04-2022').get() as DocumentSnapshot<Object?>;
+          // var data = snapshot1.data() as Map;
 
+          
+          return CircularProgressIndicator();          
+
+        },
+      ),
+  );
+    
   }
 
 }

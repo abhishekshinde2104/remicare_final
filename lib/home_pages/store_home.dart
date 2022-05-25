@@ -1,16 +1,18 @@
-// ignore_for_file: unused_import, prefer_const_constructors, unused_local_variable
+// ignore_for_file: unused_import, prefer_const_constructors, unused_local_variable, avoid_print
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+
 import 'package:path/path.dart';
 import 'package:remicare/storage/access_file.dart';
 import 'package:remicare/storage/button_widget.dart';
-import 'package:remicare/storage/file_upload.dart';
+//import 'package:remicare/storage/file_upload.dart';
 import 'package:remicare/storage/firebase_api.dart';
 
+import 'package:remicare/globals/globals.dart' as globals;
 
 
 class StoreHomePage extends StatefulWidget {
@@ -63,12 +65,8 @@ class _StoreHomePageState extends State<StoreHomePage> {
               ButtonWidget(
                   text: 'Upload File',
                   icon: Icons.cloud_upload_outlined,
-                  onClicked: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => UploadApp()),
-                    );
-                  }),
+                  onClicked:uploadFile,
+                  ),
               const SizedBox(height: 48),
               ButtonWidget(
                 text: 'Check Uploaded Files',
@@ -92,6 +90,12 @@ class _StoreHomePageState extends State<StoreHomePage> {
               //   },
               // ),
               task != null ? buildUploadStatus(task!) : Container(),
+              const SizedBox(height: 48),
+              ButtonWidget(
+                  text: 'Camera',
+                  icon: Icons.camera_alt_rounded,
+                  onClicked:uploadFileFromCamera,
+                  ),
             ],
           ),
         ),
@@ -115,9 +119,10 @@ class _StoreHomePageState extends State<StoreHomePage> {
 
   Future uploadFile() async {
     if (file == null) return;
-
+    
     final fileName = basename(file!.path);
-    final destination = 'files/$fileName';
+    final destination = '/${globals.currentUUID}/$fileName';
+    //final destination = 'files/$fileName';
     task = FirebaseApi.uploadFile(destination, file!);
     setState(() {});
 
@@ -128,6 +133,10 @@ class _StoreHomePageState extends State<StoreHomePage> {
 
     // ignore: avoid_print
     print('Download-Link: $urlDownload');
+  }
+
+  Future uploadFileFromCamera() async{
+
   }
 
   Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(

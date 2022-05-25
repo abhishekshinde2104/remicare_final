@@ -3,13 +3,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:remicare/doc_ass/doc_ass_methods.dart';
+
 import 'package:remicare/home_pages/doc_ass_home.dart';
+import 'package:remicare/home_pages/logInOut.dart';
 import 'package:remicare/home_pages/login_screen.dart';
 import 'package:remicare/home_pages/patient_home.dart';
-
 import '../home_pages/doc_ass_home.dart';
 import '../home_pages/patient_home.dart';
+
+import 'package:remicare/globals/globals.dart' as globals;
 
 class DocAssCreateAccount extends StatefulWidget {
   DocAssCreateAccount({Key? key}) : super(key: key);
@@ -28,15 +30,13 @@ class _DocAssCreateAccountState extends State<DocAssCreateAccount> {
   String date = "";
   DateTime selectedDate = DateTime.now();
 
-  String? uid;
-
-  //Function to add new user to Cloud FireStore
-  Future<String?> current_userid() async {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final User? user = auth.currentUser;
-    uid = user!.uid;
-    print(uid);
-    return(uid);
+  // String? uid;
+  // FirebaseAuth _auth = FirebaseAuth.instance;
+  // Future<String?> current_userid() async {
+  //   final FirebaseAuth auth = FirebaseAuth.instance;
+  //   final User? user = auth.currentUser;
+  //   uid = user!.uid;
+  //   return(uid.toString());
     // var db = FirebaseFirestore.instance;
     // db.collection('users').doc(uid).set({
     //   'name': _name.text, 
@@ -47,7 +47,7 @@ class _DocAssCreateAccountState extends State<DocAssCreateAccount> {
     // .then((value) => print("Account Created"))
     // .catchError((error) => print("Failed to create account: $error"));
     // print("Account added to Cloud Firestore");
-  }
+  //}
 
   
   _selectDate(BuildContext context) async {
@@ -203,48 +203,67 @@ class _DocAssCreateAccountState extends State<DocAssCreateAccount> {
 
   Widget customButton(Size size) {
     return GestureDetector(
-      onTap: () {
-        if (_name.text.isNotEmpty && _email.text.isNotEmpty && _password.text.isNotEmpty) 
-        {
-          //CHECK IF THE USERNAME OR EMAIL ID IS ALREADY IN USE OR NOT......
-        FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _email.text,
-          password: _password.text)
-          .then((value){
-          print("Account Created! in Aunthetication");
-          Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PatientHome()),
-        );
-        }).onError((error, stackTrace){
-          print("Error ${error.toString()}");
-        });
-
-        // uid = current_userid() as String?;
-
-        FirebaseFirestore.instance.collection('users')
-        .add({
-          //"post_id":uid,
-          'name': _name.text, 
-          'dob': "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-          'email':_email.text,
-          'password':_password.text ,
-        })
-        .then((value) => print("Account Created in Cloud Firestore"))
-        .catchError((error) => print("Failed to create account: $error"));
-
-
-        
-
+      onTap: (){
+        if (_name.text.isNotEmpty &&
+            _email.text.isNotEmpty &&
+            _password.text.isNotEmpty) {
           setState(() {
             isLoading = true;
           });
-
-        } 
-        else {
+          createPatientAccount(_name.text, _email.text, _password.text).then((user) {
+              //globals.currentEmail = _email.text;
+              //globals.currentUUID = current_userid() as String;
+              //print(globals.currentUUID);
+              setState(() {
+                isLoading = false;
+              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PatientHome())
+              );      
+              print("Account Created Sucessfull");
+          });
+        } else {
           print("Please enter Fields");
         }
       },
+
+      // onTap: (){
+      //   if (_name.text.isNotEmpty && _email.text.isNotEmpty && _password.text.isNotEmpty) 
+      //   {
+      //     //CHECK IF THE USERNAME OR EMAIL ID IS ALREADY IN USE OR NOT......
+      //   FirebaseAuth.instance.createUserWithEmailAndPassword(
+      //     email: _email.text,
+      //     password: _password.text)
+      //     .then((value){
+      //     print("Account Created! in Aunthetication");
+      //     //_email.clear();
+      //     Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => PatientHome()),
+      //   );
+      //   }).onError((error, stackTrace){
+      //     print("Error ${error.toString()}");
+      //   });
+      //   //uid = current_userid() as String?;
+      //   globals.currentEmail = _email.text;
+      //   FirebaseFirestore.instance.collection('users').doc(_email.text)
+      //   .set({
+      //     'name': _name.text, 
+      //     'dob': "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+      //     'email':_email.text,
+      //     'password':_password.text,  
+      //   })
+      //   .then((value) => print("Account Created in Cloud Firestore"))
+      //   .catchError((error) => print("Failed to create account: $error"));
+      //     setState(() {
+      //       isLoading = true;
+      //     });
+      //   } 
+      //   else {
+      //     print("Please enter Fields");
+      //   }
+      // },
       child: Container(
           height: size.height / 14,
           width: size.width / 1.2,
